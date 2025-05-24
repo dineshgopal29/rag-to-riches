@@ -18,6 +18,7 @@ This Python script provides convenient functions to interact with various Large 
 
 Install dependencies:
 ```bash
+python3 -m venv environment-name
 pip install boto3 langchain_aws langchain-core openai python-dotenv
 ```
 
