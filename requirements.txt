@@ -1,0 +1,8 @@
+langchain
+langchain-aws
+langchain-openai
+langchain-community
+langchain-core
+boto3
+dotenv
+botocore
