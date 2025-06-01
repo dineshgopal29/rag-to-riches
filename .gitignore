@@ -160,3 +160,4 @@ cython_debug/
 
 # RAG folder and its contents
 rag/
+faiss_index/
