@@ -1,8 +1,17 @@
 # RAG-to-Riches: PDF Processing and LLM Integration
 
-This repository provides a comprehensive solution for PDF processing, vector database creation, and question-answering using Retrieval-Augmented Generation (RAG) with AWS Bedrock Claude models and OpenAI. It includes two main modules for different use cases.
+This repository provides a comprehensive solution for PDF processing, vector database creation, and question-answering using Retrieval-Augmented Generation (RAG) with AWS Bedrock Claude models and OpenAI. It includes three main modules for different use cases.
 
 ## 🚀 Features
+
+### AI Social Journal Q&A Bot (`call-knowledgebase.py`)
+- Interactive Streamlit chatbot interface
+- AWS Bedrock Knowledge Base integration
+- Real-time streaming responses
+- Conversation history and persistence
+- Save/Clear chat functionality
+- Comprehensive error handling with retry logic
+- Professional UI with statistics and controls
 
 ### LLM Access (`access_llm.py`)
 - Call Claude Sonnet 3.5, 3.7, and 4 via AWS Bedrock using `boto3`
@@ -23,6 +32,7 @@ This repository provides a comprehensive solution for PDF processing, vector dat
 
 - Python 3.8+
 - AWS credentials with Bedrock access
+- AWS Bedrock Knowledge Base (for chatbot)
 - OpenAI API key (for OpenAI calls)
 
 ## 🛠️ Installation
@@ -42,7 +52,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 3. **Install dependencies:**
 ```bash
 pip install boto3 langchain_aws langchain-core openai python-dotenv
-pip install langchain pypdf faiss-cpu langchain-community
+pip install langchain pypdf faiss-cpu langchain-community streamlit
 ```
 
 ## ⚙️ Environment Variables
@@ -54,7 +64,12 @@ Create a `.env` file in the project root:
 AWS_ACCESS_KEY_ID=your_aws_access_key_id
 AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
 AWS_REGION=us-east-1
+REGION_NAME=us-east-1
 BEDROCK_MODEL_ID=anthropic.claude-3-sonnet-20240229-v1:0
+
+# AWS Bedrock Knowledge Base (for chatbot)
+KB_ID=your_knowledge_base_id
+FM_ARN=your_foundation_model_arn
 
 # OpenAI Configuration
 OPENAI_API_KEY=your_openai_api_key
@@ -62,6 +77,30 @@ OPENAI_MODEL=gpt-3.5-turbo
 ```
 
 ## 🎯 Usage
+
+### AI Social Journal Q&A Bot
+
+**Run the Streamlit app:**
+```bash
+streamlit run call-knowledgebase.py
+```
+
+**Features:**
+- 💬 Interactive chat interface with streaming responses
+- 💾 Save conversations to JSON files
+- 🗑️ Clear chat history
+- 📊 Real-time statistics (message count, user/bot messages)
+- 🔄 Automatic retry on AWS throttling
+- 🎨 Professional UI with sidebar controls
+
+**Import and use in your code:**
+```python
+from call-knowledgebase import KnowledgeBaseClient
+
+client = KnowledgeBaseClient()
+response = client.get_response_from_knowledgebase("Your question here")
+print(response)
+```
 
 ### LLM Access Module
 
@@ -120,13 +159,17 @@ print(answer)
 
 ```
 rag-to-riches/
-├── access_llm.py          # LLM client for AWS Bedrock and OpenAI
-├── datasetup.py           # PDF processing and RAG system
-├── call_llm.py            # Legacy LLM functions (standalone)
-├── .env                   # Environment variables
-├── .gitignore            # Git ignore file
-├── readme.md             # This file
-└── faiss_index/          # Vector database (created automatically)
+├── call-knowledgebase.py     # AI Social Journal Q&A Bot (Streamlit)
+├── access_llm.py             # LLM client for AWS Bedrock and OpenAI
+├── datasetup.py              # PDF processing and RAG system
+├── call_llm.py               # Legacy LLM functions (standalone)
+├── requirements.txt          # Python dependencies
+├── .env                      # Environment variables
+├── .gitignore               # Git ignore file
+├── readme.md                # This file
+├── data/                    # PDF documents for processing
+├── faiss_index/             # Vector database (created automatically)
+└── images/                  # Image assets (excluded from git)
 ```
 
 ## 🔧 Configuration Options
@@ -153,7 +196,19 @@ Both modules include comprehensive error handling:
 
 ## 📝 Examples
 
-### Example 1: Simple PDF Q&A
+### Example 1: AI Social Journal Q&A Bot
+```bash
+# Run the Streamlit chatbot
+streamlit run call-knowledgebase.py
+
+# Or use programmatically
+from call-knowledgebase import KnowledgeBaseClient
+client = KnowledgeBaseClient()
+response = client.get_response_from_knowledgebase("What is artificial intelligence?")
+print(response)
+```
+
+### Example 2: Simple PDF Q&A
 ```python
 from datasetup import PDFProcessor
 
@@ -163,7 +218,7 @@ answer = processor.answer_question("Summarize the main points", vector_db)
 print(answer)
 ```
 
-### Example 2: Directory Processing
+### Example 3: Directory Processing
 ```python
 from datasetup import PDFProcessor
 
@@ -174,7 +229,7 @@ answer = processor.answer_question("What are the key findings?", vector_db)
 print(answer)
 ```
 
-### Example 3: Multiple LLM Calls
+### Example 4: Multiple LLM Calls
 ```python
 from access_llm import LLMClient
 
@@ -192,9 +247,11 @@ openai_gpt = client.call_openai_llm(prompt)
 ### Common Issues
 
 1. **AWS Access Denied**: Ensure your AWS account has Bedrock model access
-2. **Throttling Errors**: The system automatically retries, but you may need to reduce request frequency
-3. **Missing Dependencies**: Run `pip install -r requirements.txt` if available
-4. **Vector Database Not Found**: Ensure the path exists or let the system create it automatically
+2. **Knowledge Base Not Found**: Verify your `KB_ID` and `FM_ARN` in `.env` file
+3. **Throttling Errors**: The system automatically retries, but you may need to reduce request frequency
+4. **Missing Dependencies**: Run `pip install -r requirements.txt` if available
+5. **Vector Database Not Found**: Ensure the path exists or let the system create it automatically
+6. **Streamlit Issues**: Make sure all dependencies are installed and `.env` is properly configured
 
 ### Getting Model Access
 
@@ -202,13 +259,24 @@ openai_gpt = client.call_openai_llm(prompt)
 2. Navigate to "Model access"
 3. Request access to Anthropic Claude models
 4. Wait for approval (usually instant)
+5. For Knowledge Base: Set up your knowledge base in AWS Bedrock and note the KB_ID and FM_ARN
 
 ## 📞 Support
 
 For issues related to:
 - **AWS Bedrock**: Check AWS documentation or contact AWS Support
+- **Knowledge Base**: Verify your KB_ID and FM_ARN configuration
+- **Streamlit**: Check the console for error messages and ensure dependencies are installed
 - **OpenAI API**: Verify your API key and quota
 - **Code issues**: Check logs for detailed error messages
+
+## 🎨 Screenshots
+
+The AI Social Journal Q&A Bot provides a modern, interactive interface with:
+- Real-time chat with streaming responses
+- Conversation statistics and controls
+- Professional UI with sidebar navigation
+- Error handling and status indicators
 
 ## 📄 License
 
@@ -216,4 +284,4 @@ This project is provided as-is for educational and development purposes.
 
 ---
 
-**Note**: Make sure your AWS account has access to Bedrock and the Anthropic Claude models. For OpenAI, ensure your API key is valid and has sufficient quota.
+**Note**: Make sure your AWS account has access to Bedrock and the Anthropic Claude models. For the chatbot, ensure your Knowledge Base is properly configured. For OpenAI, ensure your API key is valid and has sufficient quota.
