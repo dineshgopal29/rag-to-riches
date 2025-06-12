@@ -313,7 +313,7 @@ class PDFProcessor:
             logger.error(f"Error loading vector database: {e}")
             return None
 
-    def call_bedrock_claude(self, prompt: str, max_tokens: int = 1000) -> str:
+    def call_bedrock_claude(self, prompt: str, max_tokens: int = 10000) -> str:
         """
         Call Amazon Bedrock Claude model with retry logic and error handling
         
