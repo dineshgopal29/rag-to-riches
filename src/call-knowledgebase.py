@@ -117,6 +117,10 @@ class KnowledgeBaseClient:
                             },
                             "generationConfiguration": {
                                 "promptTemplate": {"textPromptTemplate": default_prompt},
+                                "guardrailConfiguration": {
+                                    "guardrailId": os.getenv("GUARDRAIL_ID"),
+                                    "guardrailVersion": os.getenv("GUARDRAIL_VERSION")
+                                },
                                 "inferenceConfig": {
                                     "textInferenceConfig": {
                                         "maxTokens": 2000,

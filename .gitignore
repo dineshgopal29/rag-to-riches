@@ -164,3 +164,10 @@ faiss_index/
 
 # Images folder
 images/
+
+# Log files
+*.log
+guardrail_operations.log
+
+# Configuration exports
+guardrail_config_*.json
