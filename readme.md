@@ -51,6 +51,15 @@ This repository provides a comprehensive solution for PDF processing, vector dat
 - Easy configuration export/import
 - Built-in safety checks for destructive operations
 
+### RAGAS Evaluation System (`rag_eval.py`)
+- **📊 RAG Quality Assessment**: Comprehensive evaluation of RAG systems using RAGAS metrics
+- **🌍 Geography Q&A Dataset**: Pre-built knowledge base with 10 geography questions
+- **📈 Multiple Metrics**: LLM Context Recall, Faithfulness, and Factual Correctness evaluation
+- **🤖 AWS Bedrock Integration**: Uses Claude 3.5 Sonnet and Amazon Titan embeddings
+- **📋 Results Export**: Tabular console output and CSV file export
+- **⚙️ Configurable**: Easily adjust number of questions and evaluation parameters
+- **🧪 Diagnostic Tools**: Includes simple test script for debugging evaluation issues
+
 ### AI Assistant with Guardrails (`guardrail_streamlit_app.py`)
 - **🛡️ Secure Q&A Interface**: Clean, modern chat interface with real-time responses
 - **🚫 Advanced Content Protection**: AWS Guardrails configured to block:
@@ -70,6 +79,12 @@ This repository provides a comprehensive solution for PDF processing, vector dat
 - AWS Bedrock Knowledge Base (for chatbot)
 - OpenAI API key (for OpenAI calls)
 
+### Additional Requirements for RAGAS Evaluation
+- AWS Bedrock access with Claude 3.5 Sonnet model permissions
+- Amazon Titan embeddings model access
+- RAGAS framework: `pip install ragas`
+- Evaluation dependencies: `pip install datasets pandas tabulate`
+
 ## 🛠️ Installation
 
 1. **Clone the repository:**
@@ -88,6 +103,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```bash
 pip install boto3 langchain_aws langchain-core openai python-dotenv
 pip install langchain pypdf faiss-cpu langchain-community streamlit
+pip install ragas datasets pandas tabulate  # For RAGAS evaluation
 ```
 
 ## ⚙️ Environment Variables
@@ -112,6 +128,39 @@ OPENAI_MODEL=gpt-3.5-turbo
 ```
 
 ## 🎯 Usage
+
+### 🚀 Quick Start - RAGAS Evaluation
+
+**1. Set up environment variables:**
+```bash
+# Create .env file with your AWS credentials
+AWS_ACCESS_KEY_ID=your_aws_access_key_id
+AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
+AWS_REGION=us-east-1
+REGION_NAME=us-east-1
+BEDROCK_MODEL_ID=anthropic.claude-3-5-sonnet-20241022-v2:0
+```
+
+**2. Install RAGAS dependencies:**
+```bash
+pip install ragas datasets pandas tabulate
+```
+
+**3. Run the evaluation:**
+```bash
+python src/rag_eval.py
+```
+
+**4. View results:**
+- Console output shows formatted table with metrics
+- CSV file `geography_evaluation_results.csv` is auto-generated
+- Results include LLM Context Recall, Faithfulness, and Factual Correctness
+
+**5. Debug if needed:**
+```bash
+# Run diagnostic test if you encounter NaN values
+python src/test_simple_eval.py
+```
 
 ### AI Assistant with Guardrails
 
@@ -341,6 +390,106 @@ client.import_guardrail("guardrail_config.json")
 - `export_guardrail(guardrail_id, file_path)`
 - `import_guardrail(file_path)`
 
+### RAGAS Evaluation System
+
+**Run the RAGAS evaluation:**
+```bash
+python src/rag_eval.py
+```
+
+**Features:**
+- **📊 Comprehensive RAG Evaluation**: Uses RAGAS framework for scientific evaluation
+- **🌍 Geography Knowledge Base**: Pre-built dataset with 10 geography questions
+- **🤖 AWS Bedrock Integration**: Claude 3.5 Sonnet for LLM tasks, Titan embeddings
+- **📈 Multiple Metrics**: LLM Context Recall, Faithfulness, and Factual Correctness
+- **📋 Export Results**: Console table output and CSV file generation
+- **⚙️ Configurable**: Easy adjustment of evaluation parameters
+
+**Key Metrics Evaluated:**
+- **LLM Context Recall**: How well the retrieval system finds relevant context
+- **Faithfulness**: Whether the generated answer is grounded in the retrieved context
+- **Factual Correctness**: Accuracy of the factual claims in the generated answer
+
+**Sample Geography Questions:**
+- "What is the capital of France?"
+- "Which river is the longest in the world?"
+- "What is the highest mountain in the world?"
+- "Which country has the most time zones?"
+- "What is the smallest country in the world?"
+
+**Configuration Options:**
+```python
+# In src/rag_eval.py - Configuration Section
+NUM_QUESTIONS = 10          # Number of questions to evaluate
+DISPLAY_SAMPLES = 3         # Number of sample results to show
+CHUNK_SIZE = 1000          # Document chunk size for RAG
+CHUNK_OVERLAP = 200        # Overlap between chunks
+```
+
+**Required Environment Variables:**
+```env
+# AWS Configuration (required)
+AWS_ACCESS_KEY_ID=your_aws_access_key_id
+AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
+AWS_REGION=us-east-1
+REGION_NAME=us-east-1
+
+# Model Configuration (required)
+BEDROCK_MODEL_ID=anthropic.claude-3-5-sonnet-20241022-v2:0
+```
+
+**Output Format:**
+```
+RAGAS Evaluation Results
+========================
+
++---+----------------------------------------+------------+-------------+-------------------+
+| # | Question                               | LLM Context| Faithfulness| Factual Correctness|
+|   |                                        | Recall     |             |                   |
++===+========================================+============+=============+===================+
+| 1 | What is the capital of France?         | 0.95       | 0.98        | 1.00              |
+| 2 | Which river is the longest in the world| 0.87       | 0.91        | 0.95              |
++---+----------------------------------------+------------+-------------+-------------------+
+
+Results saved to: geography_evaluation_results.csv
+```
+
+**Import and use in your code:**
+```python
+from src.rag_eval import RAGEvaluator
+
+# Initialize evaluator
+evaluator = RAGEvaluator()
+
+# Run evaluation on custom dataset
+results = evaluator.evaluate_custom_dataset(
+    questions=["Your question here"],
+    ground_truths=["Expected answer here"],
+    contexts=[["Context paragraph 1", "Context paragraph 2"]],
+    answers=["Generated answer here"]
+)
+
+# Get specific metrics
+faithfulness_score = results['faithfulness'].mean()
+recall_score = results['context_recall'].mean()
+```
+
+**Debugging Tool:**
+```bash
+# Run simple diagnostic test
+python src/test_simple_eval.py
+```
+
+This script helps identify NaN issues and validates individual metrics with minimal examples.
+
+**Key Classes and Methods:**
+- `RAGEvaluator`: Main evaluation class
+- `initialize_aws_models()`: Set up AWS Bedrock models
+- `create_geography_dataset()`: Generate evaluation dataset
+- `evaluate_rag_system()`: Run RAGAS evaluation
+- `display_results()`: Format and display results
+- `save_results_to_csv()`: Export to CSV file
+
 ### AI Assistant with Guardrails
 
 **Quick start:**
@@ -409,12 +558,16 @@ rag-to-riches/
 │   ├── access_llm.py              # LLM client for AWS Bedrock and OpenAI
 │   ├── datasetup.py               # PDF processing and RAG system
 │   ├── setup_guardrail_optimized.py # AWS Bedrock Guardrail management
-│   └── guardrail_client.py        # Guardrail client utility
+│   ├── guardrail_client.py        # Guardrail client utility
+│   ├── rag_eval.py                # RAGAS evaluation system
+│   └── test_simple_eval.py        # RAGAS diagnostic tool
 ├── call-knowledgebase.py          # AWS Bedrock Knowledge Base Q&A (Streamlit)
 ├── requirements.txt               # Python dependencies
 ├── .env                          # Environment variables (create this)
 ├── .gitignore                    # Git ignore file
 ├── readme.md                     # This file
+├── geography_dataset.json        # RAGAS evaluation dataset (auto-generated)
+├── geography_evaluation_results.csv # RAGAS evaluation results (auto-generated)
 ├── data/                         # PDF documents for processing
 ├── faiss_index/                  # Vector database (created automatically)
 └── images/                       # Image assets (excluded from git)
@@ -517,3 +670,69 @@ export REGION_NAME="us-east-1"
 # Optional
 export AWS_SESSION_TOKEN="your_session_token"
 ```
+
+### RAGAS Evaluation Issues
+
+**1. NaN Values in Metrics:**
+```
+Error: NaN values in evaluation results
+```
+- **Solution**: Run `python src/test_simple_eval.py` to diagnose the issue
+- **Check**: Ensure your AWS credentials have access to Claude 3.5 Sonnet
+- **Verify**: The model ARN is correct in your `.env` file
+- **Debug**: Look for incomplete or malformed responses from the LLM
+
+**2. Model Access Issues:**
+```
+Error: AccessDenied for model anthropic.claude-3-5-sonnet
+```
+- **Solution**: 
+  1. Go to AWS Bedrock Console → Model Access
+  2. Request access to Anthropic Claude 3.5 Sonnet
+  3. Wait for approval (usually instant)
+  4. Also request access to Amazon Titan embeddings
+
+**3. Embedding Model Issues:**
+```
+Error: Unable to initialize embedding model
+```
+- **Solution**: Verify you have access to `amazon.titan-embed-text-v2:0`
+- **Check**: Ensure the embedding model is available in your AWS region
+- **Alternative**: The script automatically falls back to OpenAI embeddings if configured
+
+**4. Dataset Loading Issues:**
+```
+Error: Unable to create evaluation dataset
+```
+- **Solution**: Check that the geography knowledge base is properly formatted
+- **Verify**: All required fields (question, ground_truth, contexts, answer) are present
+- **Debug**: Run with fewer questions first (`NUM_QUESTIONS = 3`)
+
+**5. CSV Export Issues:**
+```
+Error: Unable to save results to CSV
+```
+- **Solution**: Check write permissions in the project directory
+- **Verify**: The pandas library is installed: `pip install pandas`
+- **Alternative**: Results are still displayed in console table format
+
+**Required Environment Variables for RAGAS:**
+```bash
+# AWS Configuration (required)
+export AWS_ACCESS_KEY_ID="your_access_key"
+export AWS_SECRET_ACCESS_KEY="your_secret_key"
+export AWS_REGION="us-east-1"
+export REGION_NAME="us-east-1"
+
+# Model Configuration (required)
+export BEDROCK_MODEL_ID="anthropic.claude-3-5-sonnet-20241022-v2:0"
+
+# Optional (for OpenAI fallback)
+export OPENAI_API_KEY="your_openai_api_key"
+```
+
+**Performance Tips:**
+- Start with fewer questions (`NUM_QUESTIONS = 3`) for testing
+- Monitor AWS costs as evaluation uses multiple LLM calls
+- Use `DISPLAY_SAMPLES = 1` to reduce console output
+- Consider running evaluation during off-peak hours to avoid throttling
